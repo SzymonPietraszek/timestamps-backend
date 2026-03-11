@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from app.routers import hello, dynamo
+from app.routers import timestamp
 from mangum import Mangum
 
 app = FastAPI()
-app.include_router(hello.router)
-app.include_router(dynamo.router)
+app.include_router(timestamp.router)
 
 
 @app.get("/")
