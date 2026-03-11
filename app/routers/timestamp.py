@@ -1,5 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from typing import List, Dict
+from datetime import datetime, timedelta
 import boto3
 import os
 
@@ -13,6 +15,58 @@ BLOCK_SECONDS = 60
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(TABLE_NAME)
+
+
+class TimestampRequest(BaseModel):
+    action: str
+    delay: int
+
+
+@router.post("/timestamp")
+def add_timestamp(data: TimestampRequest):
+
+    if data.action not in VALID_ACTIONS:
+        raise HTTPException(status_code=400, detail="Nieprawidłowa akcja")
+
+    if data.delay not in VALID_DELAYS:
+        raise HTTPException(status_code=400, detail="Nieprawidłowy delay")
+
+    now = datetime.now()
+
+    table.put_item(
+        Item={
+            "pk": data.action,
+            "timestamps": create_timestamp_list(now, data.action, data.delay),
+            "last_write_at": now.isoformat(),
+        }
+    )
+
+    return {"status": "ok"}
+
+
+def create_timestamp_list(now: datetime, action: str, delay: int) -> List[str]:
+    new_timestamp = now - timedelta(minutes=delay)
+
+    item = table.get_item(Key={"pk": action}).get("Item")
+
+    if not item:
+        return [new_timestamp.isoformat()]
+
+    timestamps = item.get("timestamps")
+    last_write_at = datetime.fromisoformat(item.get("last_write_at"))
+
+    if (now - last_write_at).total_seconds() < BLOCK_SECONDS:
+        timestamps[0] = new_timestamp.isoformat()
+    else:
+        timestamps.insert(0, new_timestamp.isoformat())
+
+    if len(timestamps) > 1 and timestamps[0] > timestamps[1]:
+        raise HTTPException(
+            status_code=400,
+            detail="Nowy wpis musi być nowszy niż ostatni",
+        )
+
+    return timestamps[:5]
 
 
 @router.get("/timestamp")
