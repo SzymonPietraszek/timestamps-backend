@@ -1,9 +1,9 @@
 from fastapi import FastAPI
-from app.routers import timestamp
+from app.routers import timestamps
 from mangum import Mangum
 
 app = FastAPI()
-app.include_router(timestamp.router)
+app.include_router(timestamps.router)
 
 
 @app.get("/")

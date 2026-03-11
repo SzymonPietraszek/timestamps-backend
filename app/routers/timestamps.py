@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import boto3
 import os
 
-router = APIRouter()
+router = APIRouter(prefix="/timestamps")
 
 TABLE_NAME = os.getenv("TABLE_NAME", "timestamps")
 VALID_ACTIONS = ["l", "p", "lek"]
@@ -22,7 +22,7 @@ class TimestampRequest(BaseModel):
     delay: int
 
 
-@router.post("/timestamp")
+@router.post("/")
 def add_timestamp(data: TimestampRequest):
 
     if data.action not in VALID_ACTIONS:
@@ -45,22 +45,22 @@ def add_timestamp(data: TimestampRequest):
 
 
 def create_timestamp_list(now: datetime, action: str, delay: int) -> List[str]:
-    new_timestamp = now - timedelta(minutes=delay)
+    new_timestamp = (now - timedelta(minutes=delay)).isoformat(timespec="seconds")
 
     item = table.get_item(Key={"pk": action}).get("Item")
 
     if not item:
-        return [new_timestamp.isoformat()]
+        return [new_timestamp]
 
     timestamps = item.get("timestamps")
     last_write_at = datetime.fromisoformat(item.get("last_write_at"))
 
     if (now - last_write_at).total_seconds() < BLOCK_SECONDS:
-        timestamps[0] = new_timestamp.isoformat()
+        timestamps[0] = new_timestamp
     else:
-        timestamps.insert(0, new_timestamp.isoformat())
+        timestamps.insert(0, new_timestamp)
 
-    if len(timestamps) > 1 and timestamps[0] > timestamps[1]:
+    if len(timestamps) > 1 and timestamps[0] < timestamps[1]:
         raise HTTPException(
             status_code=400,
             detail="Nowy wpis musi być nowszy niż ostatni",
@@ -69,7 +69,7 @@ def create_timestamp_list(now: datetime, action: str, delay: int) -> List[str]:
     return timestamps[:5]
 
 
-@router.get("/timestamp")
+@router.get("/")
 def get_all() -> Dict[str, List[str]]:
     result = {}
 
