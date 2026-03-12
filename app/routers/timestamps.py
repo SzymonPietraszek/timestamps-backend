@@ -22,7 +22,7 @@ class TimestampRequest(BaseModel):
     delay: int
 
 
-@router.post("/")
+@router.post("")
 def add_timestamp(data: TimestampRequest):
 
     if data.action not in VALID_ACTIONS:
@@ -69,7 +69,7 @@ def create_timestamp_list(now: datetime, action: str, delay: int) -> List[str]:
     return timestamps[:5]
 
 
-@router.get("/")
+@router.get("")
 def get_all() -> Dict[str, List[str]]:
     result = {}
 
