@@ -8,8 +8,8 @@ import os
 router = APIRouter(prefix="/timestamps")
 
 TABLE_NAME = os.getenv("TABLE_NAME", "timestamps")
-VALID_ACTIONS = ["l", "p", "lek"]
-VALID_DELAYS = [0, 5, 10, 15, 20, 25, 30]
+VALID_ACTIONS = os.getenv("ACTIONS").split(",")
+VALID_DELAYS = list(map(int, os.getenv("TIME_VALUES").split(",")))
 
 BLOCK_SECONDS = 60
 
