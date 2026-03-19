@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import boto3
 import os
 
@@ -31,7 +31,7 @@ def add_timestamp(data: TimestampRequest):
     if data.delay not in VALID_DELAYS:
         raise HTTPException(status_code=400, detail="Nieprawidłowy delay")
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
 
     table.put_item(
         Item={
