@@ -1,5 +1,18 @@
 This repo is used to deploy fastAPI on AWS lambda. It is refered in terraform-templates repo. All the code must be placed in app folder.
 
+
+# Prerequisites:
+1. Add two github secrets with correct values from infrastructure deployment (terraform output). Settings -> Secrets and variables -> Actions -> New repository secret ->
+```
+Name: AWS_ACCOUNT_ID
+Secret: <123456789>
+```
+```
+Name: AWS_ROLE_FOR_GITHUB_ACTIONS
+Secret: <fwf-github-actions>
+```
+
+
 # Local development
 Go to AWS and create a dynamodb with TABLE_NAME=db TABLE_PK=pk. Run `aws configure` to allow a connection.
 
