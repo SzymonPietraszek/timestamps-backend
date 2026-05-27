@@ -21,6 +21,11 @@ jobs:
       contents: read
 
     steps:
+      - name: Validate secrets
+        run: |
+          test -n "${{ secrets.AWS_ACCOUNT_ID }}" || (echo "Missing AWS_ACCOUNT_ID" && exit 1)
+          test -n "${{ secrets.AWS_ROLE_FOR_GITHUB_ACTIONS }}" || (echo "Missing AWS_ROLE_FOR_GITHUB_ACTIONS" && exit 1)
+
       - name: Checkout main
         uses: actions/checkout@v4
 

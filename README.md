@@ -2,7 +2,9 @@ This repo is used to deploy fastAPI on AWS lambda. It is refered in terraform-te
 
 
 # Prerequisites:
-1. Add two github secrets with correct values from infrastructure deployment (terraform output). Settings -> Secrets and variables -> Actions -> New repository secret ->
+You should first deploy the infrastructure (terraform repo) and use its output to finish these steps:
+1. Enable github actions. Actions -> I understand my workflows, go ahead and enable them
+2. Add two github secrets with correct values from infrastructure deployment (terraform output). Settings -> Secrets and variables -> Actions -> New repository secret ->
 ```
 Name: AWS_ACCOUNT_ID
 Secret: <123456789>
@@ -11,6 +13,7 @@ Secret: <123456789>
 Name: AWS_ROLE_FOR_GITHUB_ACTIONS
 Secret: <fwf-github-actions>
 ```
+3. Update build.env file with correct values.
 
 
 # Local development
