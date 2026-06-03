@@ -27,7 +27,7 @@ jobs:
           test -n "${{ secrets.AWS_ROLE_FOR_GITHUB_ACTIONS }}" || (echo "Missing AWS_ROLE_FOR_GITHUB_ACTIONS" && exit 1)
 
       - name: Checkout main
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Load build.env
         run: cat build.env >> $GITHUB_ENV
